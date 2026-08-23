@@ -10,7 +10,7 @@ Android-приложение очевидца для анонимной отпр
 - Android Keystore;
 - Camera API и MediaStore;
 - Photo Picker;
-- Yandex MapKit;
+- OpenFreeMap;
 - Android Location API;
 - minSdk 26 (Android 8.0).
 
