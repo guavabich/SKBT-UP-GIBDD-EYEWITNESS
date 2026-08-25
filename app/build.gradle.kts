@@ -17,13 +17,20 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            // Оставляем только реальные архитектуры телефонов
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
     }
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = true          // ✅ включает сжатие кода
+            isShrinkResources = true        // ✅ удаляет неиспользуемые ресурсы
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 
@@ -43,14 +50,13 @@ dependencies {
     // ============================================================
     // MAP
     // ============================================================
-    implementation("org.maplibre.gl:android-sdk:13.4.1")
+
 
     // ============================================================
     // ANDROIDX
     // ============================================================
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.core:core-ktx:1.16.0")
-    implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.1")
     implementation("com.google.android.gms:play-services-location:21.3.0")

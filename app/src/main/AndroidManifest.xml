@@ -52,9 +52,7 @@
 
     <application
 
-
-
-
+        android:extractNativeLibs="false"
         android:allowBackup="true"
         android:label="@string/app_name"
         android:icon="@drawable/logo_gibdd"
@@ -87,10 +85,6 @@
         <!-- MAP PICKER -->
         <!-- ================================================== -->
 
-        <activity
-            android:name=".MapPickerActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
 
         <activity
             android:name=".BanActivity"
@@ -101,10 +95,6 @@
         <!-- OLD LOCATION PICKER -->
         <!-- ================================================== -->
 
-        <activity
-            android:name=".LocationPickerActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
 
         <!-- ================================================== -->
         <!-- INTRO -->

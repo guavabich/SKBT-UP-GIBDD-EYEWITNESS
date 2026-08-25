@@ -14,7 +14,6 @@
     <!-- ========================================================= -->
 
     <LinearLayout
-        android:id="@+id/chatHeader"
         android:layout_width="match_parent"
         android:layout_height="58dp"
         android:orientation="horizontal"
@@ -36,7 +35,6 @@
             android:focusable="true" />
 
         <ImageView
-            android:id="@+id/chatLogo"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginEnd="8dp"
@@ -45,7 +43,6 @@
             android:contentDescription="Логотип ГИБДД" />
 
         <TextView
-            android:id="@+id/headerTitle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -283,7 +280,6 @@
         <!-- ===================================================== -->
 
         <LinearLayout
-            android:id="@+id/attachmentTabs"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:orientation="horizontal"
@@ -358,7 +354,6 @@
     <!-- ========================================================= -->
 
     <LinearLayout
-        android:id="@+id/inputPanel"
         android:layout_width="match_parent"
         android:layout_height="62dp"
         android:orientation="horizontal"
