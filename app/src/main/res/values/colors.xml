@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Основной фон приложения -->
+    <color name="background_light">#F2F8FE</color>
+
+    <!-- Основной синий -->
+    <color name="gibdd_blue">#0A2A8D</color>
+
+    <!-- Более светлый синий -->
+    <color name="gibdd_light_blue">#2E5BAA</color>
+
+    <!-- Белый -->
+    <color name="white">#FFFFFF</color>
+
+    <!-- Черный текст -->
+    <color name="text_black">#111111</color>
+
+    <!-- Серый текст -->
+    <color name="text_gray">#555555</color>
+
+</resources>

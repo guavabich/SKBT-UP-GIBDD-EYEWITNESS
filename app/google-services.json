@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1048501311795",
+    "project_id": "skbt-up-gibdd",
+    "storage_bucket": "skbt-up-gibdd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048501311795:android:68bc5faca3f2063a750646",
+        "android_client_info": {
+          "package_name": "com.example.gibddochevidets"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBo6JCROcN2YjG56hXZn5VkPQXwmZYtwoc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

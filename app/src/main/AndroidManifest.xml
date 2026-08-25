@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ====================================================== -->
+    <!-- INTERNET -->
+    <!-- ====================================================== -->
+
+    <uses-permission
+        android:name="android.permission.INTERNET" />
+
+    <!-- ====================================================== -->
+    <!-- LOCATION -->
+    <!-- ====================================================== -->
+
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- ====================================================== -->
+    <!-- CAMERA -->
+    <!-- ====================================================== -->
+
+    <uses-permission
+        android:name="android.permission.CAMERA" />
+
+    <!-- ====================================================== -->
+    <!-- STORAGE -->
+    <!-- ====================================================== -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES" />
+
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
+
+    <!-- ====================================================== -->
+    <!-- APPLICATION -->
+    <!-- ====================================================== -->
+
+    <application
+
+
+
+
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@drawable/logo_gibdd"
+        android:theme="@style/Theme.GIBDDOchevidets">
+
+        <!-- ================================================== -->
+        <!-- FILE PROVIDER -->
+        <!-- ================================================== -->
+        <service
+            android:name=".MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+
+        </provider>
+
+        <!-- ================================================== -->
+        <!-- MAP PICKER -->
+        <!-- ================================================== -->
+
+        <activity
+            android:name=".MapPickerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".BanActivity"
+            android:exported="false" />
+
+
+        <!-- ================================================== -->
+        <!-- OLD LOCATION PICKER -->
+        <!-- ================================================== -->
+
+        <activity
+            android:name=".LocationPickerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ================================================== -->
+        <!-- INTRO -->
+        <!-- ================================================== -->
+
+        <activity
+            android:name=".IntroActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ================================================== -->
+        <!-- CHAT -->
+        <!-- ================================================== -->
+
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- ================================================== -->
+        <!-- MAIN -->
+        <!-- ================================================== -->
+
+
+        <activity android:name=".MapWebViewActivity" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+
+            <intent-filter>
+
+                <action
+                    android:name="android.intent.action.MAIN" />
+
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+
+            </intent-filter>
+
+        </activity>
+
+    </application>
+
+</manifest>
