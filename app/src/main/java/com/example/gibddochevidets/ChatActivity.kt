@@ -194,6 +194,19 @@ class ChatActivity : Activity() {
     // ============================================================
 // MEDIA CACHE
 // ============================================================
+    private val sentMessageIds by lazy {
+        getSharedPreferences("sent_messages", MODE_PRIVATE)
+            .getStringSet("ids", emptySet())!!
+            .toMutableSet()
+    }
+
+    private fun markAsSent(messageId: String) {
+        sentMessageIds.add(messageId)
+        getSharedPreferences("sent_messages", MODE_PRIVATE)
+            .edit()
+            .putStringSet("ids", sentMessageIds)
+            .apply()
+    }
 
     private val mediaBitmapCache =
         object : LruCache<String, Bitmap>(
@@ -2788,9 +2801,19 @@ class ChatActivity : Activity() {
             try {
                 for (uri in files) {
                     if (isFinishing || isDestroyed) return@launch
-                    withContext(Dispatchers.IO) {
+
+                    // ==========================================================
+                    // ИЗМЕНЕНИЕ №1: Сохраняем результат отправки!
+                    // ==========================================================
+                    val result = withContext(Dispatchers.IO) {
                         repository.uploadMedia(uri)
                     }
+
+                    // ==========================================================
+                    // ИЗМЕНЕНИЕ №2: Помечаем это сообщение как "своё"!
+                    // (Добавляем ID в sentMessageIds)
+                    // ==========================================================
+                    markAsSent(result.message_id)
                 }
 
                 if (isFinishing || isDestroyed) return@launch
@@ -3261,6 +3284,9 @@ class ChatActivity : Activity() {
                         )
                     }
 
+                // <-- ДОБАВЛЕНО: Помечаем как своё
+                markAsSent(message.message_id)
+
                 if (
                     isFinishing ||
                     isDestroyed
@@ -3444,6 +3470,10 @@ class ChatActivity : Activity() {
                             longitude
                         )
                     }
+
+                // <-- ДОБАВЛЕНО: Помечаем как своё
+                markAsSent(message.message_id)
+
                 pendingLocation = null
                 // СРАЗУ ПОКАЗЫВАЕМ ОТПРАВЛЕННУЮ СТАТИЧЕСКУЮ ТОЧКУ В ЧАТЕ
                 val currentDeviceId =
@@ -3567,6 +3597,9 @@ class ChatActivity : Activity() {
 
                 liveLocationMessageId =
                     message.message_id
+
+                // <-- ДОБАВЛЕНО: Помечаем как своё
+                markAsSent(message.message_id)
 
                 // ========================================================
 // СРАЗУ ПОКАЗЫВАЕМ LIVE LOCATION В ЧАТЕ
@@ -4250,10 +4283,7 @@ class ChatActivity : Activity() {
         currentDeviceId: String?
     ) {
 
-        val isMine =
-            !currentDeviceId.isNullOrBlank() &&
-                    message.observer_device_id ==
-                    currentDeviceId
+        val isMine = sentMessageIds.contains(message.message_id)
 
         val wrapper =
             LinearLayout(this)
@@ -5482,7 +5512,9 @@ class ChatActivity : Activity() {
 
         scope.launch {
             try {
-                repository.sendMessage(text)
+                // <-- ДОБАВЛЕНО: Сохраняем результат, чтобы получить ID
+                val result = repository.sendMessage(text)
+                markAsSent(result.message_id)
 
                 // Успешно — очищаем pending
                 pendingText = null
