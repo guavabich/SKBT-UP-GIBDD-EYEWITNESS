@@ -4296,11 +4296,11 @@ class ChatActivity : Activity() {
 
             background.cornerRadii =
                 floatArrayOf(
-                    dp(18).toFloat(),
-                    dp(18).toFloat(),
+                    dp(5).toFloat(),
+                    dp(5).toFloat(),
 
-                    dp(5).toFloat(),
-                    dp(5).toFloat(),
+                    dp(18).toFloat(),
+                    dp(18).toFloat(),
 
                     dp(18).toFloat(),
                     dp(18).toFloat(),
@@ -4312,7 +4312,7 @@ class ChatActivity : Activity() {
         } else {
 
             background.setColor(
-                Color.WHITE
+                Color.rgb(0x32, 0xD8, 0xFB) // #32D8FB
             )
 
             background.cornerRadii =
