@@ -165,9 +165,9 @@ class BanActivity : Activity() {
         banCard.addView(dateRow, dateParams)
 
         val calendar = TextView(this).apply {
-            text = "▣"
+            text = "!"
             textSize = 25f
-            setTextColor(Color.BLACK)
+            setTextColor(Color.RED)
             gravity = Gravity.CENTER
         }
         val calendarParams = LinearLayout.LayoutParams(dp(32), dp(40))
@@ -185,14 +185,7 @@ class BanActivity : Activity() {
         }
         dateRow.addView(dateText, dateTextParams)
 
-        // --- Осталось времени ---
-        remainingText = TextView(this).apply {
-            text = getRemainingText()
-            textSize = 13f
-            setTextColor(Color.rgb(23, 59, 145))
-            typeface = Typeface.DEFAULT_BOLD
-            gravity = Gravity.CENTER
-        }
+
         val remainingParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             dp(35)
@@ -274,8 +267,8 @@ class BanActivity : Activity() {
 
     private fun parseDate(value: String): Date? {
         val inputFormats = listOf(
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US),
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+            SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.", Locale.US),
+            SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.", Locale.US)
         )
         for (format in inputFormats) {
             format.timeZone = TimeZone.getTimeZone("UTC")
