@@ -10,10 +10,15 @@ import android.view.Gravity
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.Duration
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Locale
-import java.util.TimeZone
 
 class BanActivity : Activity() {
 
@@ -24,9 +29,7 @@ class BanActivity : Activity() {
     }
 
     private val handler = Handler(Looper.getMainLooper())
-
-    private var remainingText: TextView? = null
-    private var reasonText: TextView? = null
+    private lateinit var remainingText: TextView
 
     private val countdownRunnable = object : Runnable {
         override fun run() {
@@ -130,20 +133,6 @@ class BanActivity : Activity() {
         )
         content.addView(banCard, cardParams)
 
-        // --- Причина бана (если передана) ---
-        val reason = intent.getStringExtra(EXTRA_REASON)
-        if (!reason.isNullOrBlank()) {
-            val reasonView = TextView(this).apply {
-                text = "Причина: $reason"
-                textSize = 13f
-                setTextColor(Color.rgb(200, 50, 50))
-                typeface = Typeface.DEFAULT_BOLD
-                gravity = Gravity.CENTER
-                setPadding(0, 0, 0, dp(8))
-            }
-            banCard.addView(reasonView)
-        }
-
         // --- Текст "БЛОКИРОВКА ДЕЙСТВУЕТ ДО:" ---
         val banTitle = TextView(this).apply {
             text = "БЛОКИРОВКА ДЕЙСТВУЕТ ДО:"
@@ -185,7 +174,14 @@ class BanActivity : Activity() {
         }
         dateRow.addView(dateText, dateTextParams)
 
-
+        // --- Оставшееся время (ИСПРАВЛЕНО) ---
+        remainingText = TextView(this).apply {
+            text = getRemainingText()
+            textSize = 14f
+            setTextColor(Color.rgb(50, 50, 50))
+            typeface = Typeface.DEFAULT_BOLD
+            gravity = Gravity.CENTER
+        }
         val remainingParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             dp(35)
@@ -195,21 +191,21 @@ class BanActivity : Activity() {
         setContentView(root)
     }
 
+    // ============================================================
+    // ЛОГИКА ДАТ И ВРЕМЕНИ
+    // ============================================================
+
     private fun getBanEndText(): String {
         val permanent = intent.getBooleanExtra(EXTRA_PERMANENT, false)
         if (permanent) {
             return "Блокировка постоянная"
         }
         val endsAt = intent.getStringExtra(EXTRA_ENDS_AT)
-        if (endsAt.isNullOrBlank()) {
-            return "Срок блокировки неизвестен"
-        }
-        val date = parseDate(endsAt)
-        if (date == null) {
-            return endsAt
-        }
-        val outputFormat = SimpleDateFormat("d MMMM yyyy, HH:mm", Locale("ru"))
-        return outputFormat.format(date)
+        val date = parseBanEnd(endsAt)
+            ?: return "Срок блокировки неизвестен"
+
+        val formatter = DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm", Locale("ru"))
+        return date.format(formatter)
     }
 
     private fun getRemainingText(): String {
@@ -218,69 +214,81 @@ class BanActivity : Activity() {
             return "Блокировка постоянная"
         }
         val endsAt = intent.getStringExtra(EXTRA_ENDS_AT)
-        if (endsAt.isNullOrBlank()) {
-            return "Осталось: неизвестно"
-        }
-        val endDate = parseDate(endsAt)
-        if (endDate == null) {
-            return "Осталось: неизвестно"
-        }
-        val remaining = endDate.time - System.currentTimeMillis()
-        if (remaining <= 0) {
+        val endDate = parseBanEnd(endsAt)
+            ?: return "Осталось: неизвестно"
+
+        val now = ZonedDateTime.now()
+        if (now.isAfter(endDate)) {
             return "Блокировка закончилась"
         }
-        return "Осталось: ${formatRemainingTime(remaining)}"
+
+        // Разбиваем время на годы, месяцы, дни, часы, минуты и секунды
+        val years = ChronoUnit.YEARS.between(now, endDate)
+        val months = ChronoUnit.MONTHS.between(now.plusYears(years), endDate)
+        val days = ChronoUnit.DAYS.between(now.plusYears(years).plusMonths(months), endDate)
+        val hours = ChronoUnit.HOURS.between(now.plusYears(years).plusMonths(months).plusDays(days), endDate)
+        val minutes = ChronoUnit.MINUTES.between(now.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours), endDate)
+        val seconds = ChronoUnit.SECONDS.between(now.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes), endDate)
+
+        val parts = mutableListOf<String>()
+
+        if (years > 0) parts.add("$years ${plural(years, "год", "года", "лет")}")
+        if (months > 0) parts.add("$months ${plural(months, "месяц", "месяца", "месяцев")}")
+        if (days > 0) parts.add("$days ${plural(days, "день", "дня", "дней")}")
+        if (hours > 0) parts.add("$hours ${plural(hours, "час", "часа", "часов")}")
+        if (minutes > 0) parts.add("$minutes ${plural(minutes, "минута", "минуты", "минут")}")
+        if (seconds > 0 || parts.isEmpty()) parts.add("$seconds ${plural(seconds, "секунда", "секунды", "секунд")}")
+
+        return "Осталось: ${parts.joinToString(" ")}"
     }
 
     private fun updateRemainingTime() {
-        remainingText?.text = getRemainingText()
+        remainingText.text = getRemainingText()
     }
 
-    private fun formatRemainingTime(milliseconds: Long): String {
-        var totalSeconds = milliseconds / 1000
-        val days = totalSeconds / 86400
-        totalSeconds %= 86400
-        val hours = totalSeconds / 3600
-        totalSeconds %= 3600
-        val minutes = totalSeconds / 60
-        val seconds = totalSeconds % 60
+    // ============================================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // ============================================================
 
-        return when {
-            days > 0 -> "$days ${plural(days, "день", "дня", "дней")} $hours ${plural(hours, "час", "часа", "часов")}"
-            hours > 0 -> "$hours ${plural(hours, "час", "часа", "часов")} $minutes ${plural(minutes, "минута", "минуты", "минут")}"
-            minutes > 0 -> "$minutes ${plural(minutes, "минута", "минуты", "минут")} $seconds ${plural(seconds, "секунда", "секунды", "секунд")}"
-            else -> "$seconds ${plural(seconds, "секунда", "секунды", "секунд")}"
+    private fun parseBanEnd(value: String?): ZonedDateTime? {
+        if (value.isNullOrBlank()) return null
+        val clean = value.trim()
+
+        // Формат с Z (UTC)
+        return try {
+            Instant.parse(clean).atZone(ZoneId.systemDefault())
+        } catch (_: Exception) {
+            // Формат с +03:00
+            try {
+                OffsetDateTime.parse(clean).toZonedDateTime()
+            } catch (_: Exception) {
+                // Локальные форматы без зоны (берем текущую зону устройства)
+                val formats = listOf(
+                    "yyyy-MM-dd'T'HH:mm:ss",
+                    "yyyy-MM-dd HH:mm:ss",
+                    "yyyy-MM-dd'T'HH:mm:ss.SSS",
+                    "yyyy-MM-dd HH:mm:ss.SSS"
+                )
+                var parsed: LocalDateTime? = null
+                for (fmt in formats) {
+                    try {
+                        parsed = LocalDateTime.parse(clean, DateTimeFormatter.ofPattern(fmt))
+                        break
+                    } catch (_: Exception) {}
+                }
+                parsed?.atZone(ZoneId.systemDefault())
+            }
         }
     }
 
     private fun plural(value: Long, one: String, few: String, many: String): String {
         val number = value % 100
-        if (number in 11..19) {
-            return many
-        }
+        if (number in 11..19) return many
         return when (value % 10) {
             1L -> one
             2L, 3L, 4L -> few
             else -> many
         }
-    }
-
-    private fun parseDate(value: String): Date? {
-        val inputFormats = listOf(
-            SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.", Locale.US),
-            SimpleDateFormat("yyyy-MM-dd' 'HH:mm:ss.", Locale.US)
-        )
-        for (format in inputFormats) {
-            format.timeZone = TimeZone.getTimeZone("UTC")
-            try {
-                val date = format.parse(value)
-                if (date != null) {
-                    return date
-                }
-            } catch (_: Exception) {
-            }
-        }
-        return null
     }
 
     private fun roundedBackground(color: Int, radius: Float): android.graphics.drawable.GradientDrawable {

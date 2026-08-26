@@ -105,7 +105,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         }
 
         // Intent для открытия приложения при клике на уведомление
-        val intent = Intent(this, IntroActivity::class.java).apply {
+        val intent = Intent(this, ChatActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val pendingIntent = PendingIntent.getActivity(
@@ -114,7 +114,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         )
 
         val builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.drawable.logo_gibdd)
             .setContentTitle(title ?: "ГИБДД-Очевидец")
             .setContentText(body ?: "Новое сообщение")
             .setPriority(NotificationCompat.PRIORITY_HIGH)

@@ -1862,6 +1862,7 @@ class ChatActivity : Activity() {
                 val result = withContext(Dispatchers.IO) {
                     repository.uploadMedia(uri)
                 }
+                markAsSent(result.message_id)
                 if (isFinishing || isDestroyed) return@launch
 
                 pendingMediaUri = null
@@ -1928,6 +1929,7 @@ class ChatActivity : Activity() {
                 val result = withContext(Dispatchers.IO) {
                     repository.uploadMedia(uri)
                 }
+                markAsSent(result.message_id)
                 if (isFinishing || isDestroyed) return@launch
 
                 pendingMediaUri = null
