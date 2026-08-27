@@ -192,7 +192,7 @@ class IntroActivity : Activity() {
 
         // --- Заголовок ---
         val title = TextView(this)
-        title.text = "Трезвый дозор - 44"
+        title.text = "ГИБДД-Очевидец"
         title.textSize = 25f
         title.setTextColor(Color.rgb(25, 40, 55))
         title.typeface = Typeface.create("sans", Typeface.BOLD)

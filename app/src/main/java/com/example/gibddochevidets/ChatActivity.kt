@@ -431,9 +431,9 @@ class ChatActivity : Activity() {
 
         contextLocationButton.setOnClickListener {
             // Открываем панель геолокации
-            toggleAttachmentPanel()
-            // Можно сразу переключить на вкладку геолокации, если хотите
-            // Но для простоты просто открываем панель
+            showAttachmentPanel()
+            // Сразу переключаем на вкладку геолокации
+            showLocationOptions()
             hideContextButtonsForever()
         }
 
