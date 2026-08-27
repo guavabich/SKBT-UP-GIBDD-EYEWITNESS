@@ -83,6 +83,7 @@ data class LiveLocationPointsResponse(
 data class MessageResponse(
     val message_id: String,
     val observer_device_id: String?,
+    val sender_device_id: String? = null,
     val message_type: String?,
     val text: String?,
     val static_location: StaticLocationResponse?,

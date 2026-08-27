@@ -194,20 +194,6 @@ class ChatActivity : Activity() {
     // ============================================================
 // MEDIA CACHE
 // ============================================================
-    private val sentMessageIds by lazy {
-        getSharedPreferences("sent_messages", MODE_PRIVATE)
-            .getStringSet("ids", emptySet())!!
-            .toMutableSet()
-    }
-
-    private fun markAsSent(messageId: String) {
-        sentMessageIds.add(messageId)
-        getSharedPreferences("sent_messages", MODE_PRIVATE)
-            .edit()
-            .putStringSet("ids", sentMessageIds)
-            .apply()
-    }
-
     private val mediaBitmapCache =
         object : LruCache<String, Bitmap>(
             30 * 1024 * 1024
@@ -1862,7 +1848,6 @@ class ChatActivity : Activity() {
                 val result = withContext(Dispatchers.IO) {
                     repository.uploadMedia(uri)
                 }
-                markAsSent(result.message_id)
                 if (isFinishing || isDestroyed) return@launch
 
                 pendingMediaUri = null
@@ -1929,7 +1914,6 @@ class ChatActivity : Activity() {
                 val result = withContext(Dispatchers.IO) {
                     repository.uploadMedia(uri)
                 }
-                markAsSent(result.message_id)
                 if (isFinishing || isDestroyed) return@launch
 
                 pendingMediaUri = null
@@ -2164,7 +2148,6 @@ class ChatActivity : Activity() {
                                 longitude = longitude
                             )
                         }
-
                     Log.d(
                         "LOCATION_DEBUG",
                         "Static location успешно отправлена"
@@ -2810,12 +2793,6 @@ class ChatActivity : Activity() {
                     val result = withContext(Dispatchers.IO) {
                         repository.uploadMedia(uri)
                     }
-
-                    // ==========================================================
-                    // ИЗМЕНЕНИЕ №2: Помечаем это сообщение как "своё"!
-                    // (Добавляем ID в sentMessageIds)
-                    // ==========================================================
-                    markAsSent(result.message_id)
                 }
 
                 if (isFinishing || isDestroyed) return@launch
@@ -3285,10 +3262,6 @@ class ChatActivity : Activity() {
                             longitude = longitude
                         )
                     }
-
-                // <-- ДОБАВЛЕНО: Помечаем как своё
-                markAsSent(message.message_id)
-
                 if (
                     isFinishing ||
                     isDestroyed
@@ -3473,9 +3446,6 @@ class ChatActivity : Activity() {
                         )
                     }
 
-                // <-- ДОБАВЛЕНО: Помечаем как своё
-                markAsSent(message.message_id)
-
                 pendingLocation = null
                 // СРАЗУ ПОКАЗЫВАЕМ ОТПРАВЛЕННУЮ СТАТИЧЕСКУЮ ТОЧКУ В ЧАТЕ
                 val currentDeviceId =
@@ -3599,13 +3569,6 @@ class ChatActivity : Activity() {
 
                 liveLocationMessageId =
                     message.message_id
-
-                // <-- ДОБАВЛЕНО: Помечаем как своё
-                markAsSent(message.message_id)
-
-                // ========================================================
-// СРАЗУ ПОКАЗЫВАЕМ LIVE LOCATION В ЧАТЕ
-// ========================================================
 
                 val currentDeviceId =
                     repository.getDeviceId()
@@ -4285,7 +4248,7 @@ class ChatActivity : Activity() {
         currentDeviceId: String?
     ) {
 
-        val isMine = sentMessageIds.contains(message.message_id)
+        val isMine = message.sender_device_id == repository.getDeviceId()
 
         val wrapper =
             LinearLayout(this)
@@ -5516,7 +5479,6 @@ class ChatActivity : Activity() {
             try {
                 // <-- ДОБАВЛЕНО: Сохраняем результат, чтобы получить ID
                 val result = repository.sendMessage(text)
-                markAsSent(result.message_id)
 
                 // Успешно — очищаем pending
                 pendingText = null
